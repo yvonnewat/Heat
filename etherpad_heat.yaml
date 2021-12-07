@@ -1,4 +1,4 @@
-heat_template_version: 2017-09-01
+heat_template_version: 2015-04-30
 
 description: Template for using heat to create an instance
 
