@@ -63,7 +63,7 @@ resources:
       networks: 
         - port: { get_resource: intern-port } #Note nodejs dependent on curl
       user_data: |
-        #!/bin/bash -x
+        #!/bin/bash
         apt-get update
         echo "Updated" > log.txt
         apt-get install -y curl git
