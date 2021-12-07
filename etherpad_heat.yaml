@@ -18,11 +18,11 @@ resources:
       cidr: "10.0.0.7/24"
       network: { get_resource: intern-network }
    
-   intern-interface:  #attach router to subnet
-     type: OS::Neutron::RouterInterface
-     properties:
-       router: { get_resource: intern-router }
-       subnet: { get_resource: intern-subnet }
+  intern-interface:  #attach router to subnet
+    type: OS::Neutron::RouterInterface
+    properties:
+      router: { get_resource: intern-router }
+      subnet: { get_resource: intern-subnet }
     
   intern-security-group:
     type: OS::Neutron::SecurityGroup
