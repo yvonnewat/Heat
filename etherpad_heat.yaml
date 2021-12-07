@@ -27,7 +27,26 @@ resources:
   intern-security-group:
     type: OS::Neutron::SecurityGroup
     properties:
-      rules: [] #add some rules....tcp, udp, ssh, http, https?
+      rules: [{"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "tcp"}, 
+      {"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "http"},
+      {"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "https"},
+      {"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "udp"},
+      {"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "ssh"}] 
       
   intern-port:
     type: OS::Neutron::Port
