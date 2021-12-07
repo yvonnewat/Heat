@@ -1,0 +1,75 @@
+heat_template_version: 2015-04-30
+
+description: Template for using heat to create an instance
+
+resources:
+
+  intern-network:
+    type: OS::Neutron::Net
+    
+  intern-router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: public-net }
+    
+  intern-subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      cidr: "10.0.0.7/24"
+      network: { get_resource: intern-network }
+   
+  intern-interface:  #attach router to subnet
+    type: OS::Neutron::RouterInterface
+    properties:
+      router: { get_resource: intern-router }
+      subnet: { get_resource: intern-subnet }
+    
+  intern-security-group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules: [{"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "tcp"}, 
+      {"direction": "ingress",
+      "port_range_min": 1,
+      "port_range_max": 65535,
+      "protocol": "udp"}] 
+      
+  intern-port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: intern-network }
+      security_groups: [{get_resource: intern-security-group}]
+      
+  intern-floating-ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: "public-net"
+      
+  associate-floating-ip:
+    type: OS::Neutron::FloatingIPAssociation
+    depends_on: [intern-interface]
+    properties:
+      floatingip_id: { get_resource: intern-floating-ip }
+      port_id: { get_resource: intern-port }
+
+  intern-server:
+    type: OS::Nova::Server
+    properties:
+      key_name: mykey
+      image: afeab6b1-0e4c-48f1-a5ac-22f83959c29b #ubuntu-minimal-16.04-x86_64-20200203
+      flavor: 0ba691d3-3ff5-4403-843a-c7f8ff61ae4f #c1.c4r4
+      networks: 
+        - port: { get_resource: intern-port }
+      user_data: |
+        #!/bin/bash -x
+        curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+        sudo apt install -y nodejs
+        git clone --branch master https://github.com/ether/etherpad-lite.git &&
+        cd etherpad-lite &&
+        src/bin/run.sh
+outputs:
+  public_ip_address:
+    description: Public IP address
+    value: { get_attr: [ intern-floating-ip, floating_ip_address ] }
