@@ -64,10 +64,10 @@ resources:
         - port: { get_resource: intern-port } #Note nodejs dependent on curl
       user_data: |
         #!/bin/bash -x
-        apt-get update
-        apt-get install -y curl git
-        curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-        apt-get install -y nodejs 
+        sudo apt-get update
+        sudo apt-get install -y curl git
+        sudo curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
+        sudo apt-get install -y nodejs 
         git clone --branch master https://github.com/ether/etherpad-lite.git && \
         cd etherpad-lite && \
         src/bin/run.sh
