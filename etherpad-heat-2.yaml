@@ -61,16 +61,13 @@ resources:
       image: afeab6b1-0e4c-48f1-a5ac-22f83959c29b #ubuntu-minimal-16.04-x86_64-20200203
       flavor: 0ba691d3-3ff5-4403-843a-c7f8ff61ae4f #c1.c4r4
       networks: 
-        - port: { get_resource: intern-port }
+        - port: { get_resource: intern-port } #Note nodejs dependent on curl
       user_data: |
         #!/bin/bash -x
         apt-get update
-        apt-get install -y nodejs curl git
-        if [$? != 0] 
-        	then failed=$1
-        	else failed=$0
-        fi
+        apt-get install -y curl git
         curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
+        apt-get install -y nodejs 
         git clone --branch master https://github.com/ether/etherpad-lite.git && \
         cd etherpad-lite && \
         src/bin/run.sh
@@ -80,10 +77,6 @@ outputs:
   public_ip_address:
     description: Public IP address
     value: { get_attr: [ intern-floating-ip, floating_ip_address ] }
-    
-  status:
-    description: Status of software configuration, 1 = failed, 0 = success
-    value: { get_attr: [ failed, status] }
     
   #port_number:
     #description: Port Number
