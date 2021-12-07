@@ -66,6 +66,7 @@ resources:
         #!/bin/bash -x
         curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
         sudo apt install -y nodejs
+        sudo apt install git
         git clone --branch master https://github.com/ether/etherpad-lite.git &&
         cd etherpad-lite &&
         src/bin/run.sh
