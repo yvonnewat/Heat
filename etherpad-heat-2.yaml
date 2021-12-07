@@ -65,7 +65,9 @@ resources:
       user_data: |
         #!/bin/bash -x
         apt-get update
-        apt-get install -y nodejs git curl
+        apt-get install -y nodejs && \
+        apt-get install -y git && \
+        apt-get install -y curl
         curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
         git clone --branch master https://github.com/ether/etherpad-lite.git && \
         cd etherpad-lite && \
