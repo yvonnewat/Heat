@@ -56,6 +56,8 @@ resources:
 
   intern-server:
     type: OS::Nova::Server
+    depends_on: [intern-interface, associate-floating-ip, intern-floating-ip, 
+    intern-port, intern-security-group, intern-network, intern-router, intern-subnet]
     properties:
       key_name: mykey
       image: d8648a86-dc5d-45cb-8339-d4537dce4078 #ubuntu-20.04-x86_64
@@ -65,17 +67,12 @@ resources:
       user_data: |
         #!/bin/bash
         apt-get update
-        echo "Updated" > log.txt
         apt-get install -y curl git
-        echo "Installed curl & git" >> log.txt
         curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-        echo "curl command for node dependency" >> log.txt
         apt-get install -y nodejs 
-        echo "Installed nodejs" >> log.txt
         git clone --branch master https://github.com/ether/etherpad-lite.git && \
         cd etherpad-lite && \
         src/bin/run.sh
-        echo "Installed & ran etherpad" >> log.txt
         
 outputs:
 
