@@ -73,9 +73,8 @@ resources:
         mkdir /etherpad
         cd /etherpad
         pwd > /tmp/install-log
-        git clone --branch master https://github.com/ether/etherpad-lite.git >> /tmp/install-log
-        cd etherpad-lite && \
-        src/bin/run.sh
+        git clone --branch master https://github.com/ether/etherpad-lite.git >> /tmp/install-log 
+        touch /deploy-complete
         
 outputs:
 
