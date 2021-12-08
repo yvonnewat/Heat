@@ -58,7 +58,7 @@ resources:
     type: OS::Nova::Server
     properties:
       key_name: mykey
-      image: afeab6b1-0e4c-48f1-a5ac-22f83959c29b #ubuntu-minimal-16.04-x86_64-20200203
+      image: d8648a86-dc5d-45cb-8339-d4537dce4078 #ubuntu-20.04-x86_64
       flavor: 0ba691d3-3ff5-4403-843a-c7f8ff61ae4f #c1.c4r4
       networks: 
         - port: { get_resource: intern-port } #Note nodejs dependent on curl
