@@ -1,0 +1,6 @@
+[Unit]
+description="A service that runs etherpad when the server is launched"
+
+[Service]
+User=root
+WorkingDirectory=
