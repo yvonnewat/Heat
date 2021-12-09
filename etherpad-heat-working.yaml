@@ -4,27 +4,27 @@ description: Template for using heat to create an instance
 
 resources:
 
-  intern-network:
+  y-network:
     type: OS::Neutron::Net
     
-  intern-router:
+  y-router:
     type: OS::Neutron::Router
     properties:
       external_gateway_info: { network: public-net }
     
-  intern-subnet:
+  y-subnet:
     type: OS::Neutron::Subnet
     properties:
       cidr: "10.0.0.7/24"
-      network: { get_resource: intern-network }
+      network: { get_resource: y-network }
    
-  intern-interface:  #attach router to subnet
+  y-interface:  #attach router to subnet
     type: OS::Neutron::RouterInterface
     properties:
-      router: { get_resource: intern-router }
-      subnet: { get_resource: intern-subnet }
+      router: { get_resource: y-router }
+      subnet: { get_resource: y-subnet }
     
-  intern-security-group:
+  y-security-group:
     type: OS::Neutron::SecurityGroup
     properties:
       rules: [{"direction": "ingress",
@@ -36,34 +36,34 @@ resources:
       "port_range_max": 65535,
       "protocol": "udp"}] 
       
-  intern-port:
+  y-port:
     type: OS::Neutron::Port
     properties:
-      network: { get_resource: intern-network }
-      security_groups: [{get_resource: intern-security-group}]
+      network: { get_resource: y-network }
+      security_groups: [{get_resource: y-security-group}]
       
-  intern-floating-ip:
+  y-floating-ip:
     type: OS::Neutron::FloatingIP
     properties:
       floating_network: "public-net"
       
   associate-floating-ip:
     type: OS::Neutron::FloatingIPAssociation
-    depends_on: [intern-interface]
+    depends_on: [y-interface]
     properties:
-      floatingip_id: { get_resource: intern-floating-ip }
-      port_id: { get_resource: intern-port }
+      floatingip_id: { get_resource: y-floating-ip }
+      port_id: { get_resource: y-port }
 
-  intern-server:
+  y-server:
     type: OS::Nova::Server
-    depends_on: [intern-interface, associate-floating-ip, intern-floating-ip, 
-    intern-port, intern-security-group, intern-network, intern-router, intern-subnet]
+    depends_on: [y-interface, associate-floating-ip, y-floating-ip, 
+    y-port, y-security-group, y-network, y-router, y-subnet]
     properties:
       key_name: mykey
       image: d8648a86-dc5d-45cb-8339-d4537dce4078 #ubuntu-20.04-x86_64
       flavor: 0ba691d3-3ff5-4403-843a-c7f8ff61ae4f #c1.c4r4
       networks: 
-        - port: { get_resource: intern-port } #Note nodejs dependent on curl
+        - port: { get_resource: y-port } #Note nodejs dependent on curl
       user_data: |
         #!/bin/bash
         apt-get update
@@ -85,4 +85,4 @@ outputs:
 
   public_ip_address:
     description: Public IP address
-    value: { get_attr: [ intern-floating-ip, floating_ip_address ] }
+    value: { get_attr: [ y-floating-ip, floating_ip_address ] }
