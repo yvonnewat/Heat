@@ -13,7 +13,7 @@ provider "openstack" {
 }
 
 variable "flavor_name" {
-  description = "Flavor name for compue server"
+  description = "Flavor name for compute server"
   type = string
   default = "c1.c4r4"
 }
@@ -21,7 +21,7 @@ variable "flavor_name" {
 variable "keyname" {
   description = "Keypair used for compute node"
   type = string
-  default = "steph-key"
+  default = "mykey"
 }
 
 variable "image_name" {
