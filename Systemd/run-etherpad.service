@@ -3,8 +3,8 @@ description="A service that runs etherpad when the server is launched"
 
 [Service]
 User=root
-WorkingDirectory=<directory of script>
-ExecStart=<name of script>
+WorkingDirectory=/home/etherpad
+ExecStart=run-etherpad.sh
 Restart=always
 
 [Install]
