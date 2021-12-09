@@ -72,8 +72,13 @@ resources:
         apt-get install -y nodejs
         mkdir /etherpad
         cd /etherpad
-        pwd > /tmp/install-log
-        git clone --branch master https://github.com/ether/etherpad-lite.git >> /tmp/install-log 
+        git clone --branch master https://github.com/ether/etherpad-lite.git
+        cd ~
+        cd /etc/systemd/system
+        curl -fsSL https://raw.githubusercontent.com/yvonnewat/Heat/main/Systemd/run-etherpad.service
+        systemctl daemon-reload
+        systemctl enable run-etherpad.service
+        systemctl start --no-block run-etherpad.service
         touch /deploy-complete
         
 outputs:
@@ -81,7 +86,3 @@ outputs:
   public_ip_address:
     description: Public IP address
     value: { get_attr: [ intern-floating-ip, floating_ip_address ] }
-    
-  #port_number:
-    #description: Port Number
-    #value: { get_attr: [ intern-port, port_number ] }
