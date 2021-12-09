@@ -3,4 +3,9 @@ description="A service that runs etherpad when the server is launched"
 
 [Service]
 User=root
-WorkingDirectory=
+WorkingDirectory=<directory of script>
+ExecStart=<name of script>
+Restart=always
+
+[Install]
+WantedBy=network-online.target
