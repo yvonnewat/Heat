@@ -2,9 +2,9 @@
 description="A service that runs etherpad when the server is launched"
 
 [Service]
-User=root
-WorkingDirectory=/home/etherpad
-ExecStart=/bin/bash /home/etherpad/run-etherpad.sh
+User=ubuntu
+WorkingDirectory=/etherpad
+ExecStart=/bin/bash /etherpad/run-etherpad.sh
 Restart=always
 
 [Install]
