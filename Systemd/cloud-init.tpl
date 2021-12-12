@@ -10,10 +10,10 @@ runcmd:
   - mkdir /etherpad
   - cd /etherpad
   - git clone --branch master https://github.com/ether/etherpad-lite.git
-  - cd ~
-  - curl -fsSL https://raw.githubusercontent.com/yvonnewat/Heat/main/Systemd/run-etherpad.sh
+  - curl -fsSL https://raw.githubusercontent.com/yvonnewat/Heat/main/Systemd/run-etherpad.sh > run-etherpad.sh
+  - chown -R ubuntu /etherpad
   - cd /etc/systemd/system
-  - curl -fsSL https://raw.githubusercontent.com/yvonnewat/Heat/main/Systemd/run-etherpad.service
+  - curl -fsSL https://raw.githubusercontent.com/yvonnewat/Heat/main/Systemd/run-etherpad.service > run-etherpad.service
   - systemctl daemon-reload 
   - systemctl enable run-etherpad.service 
   - systemctl start --no-block run-etherpad.service 
