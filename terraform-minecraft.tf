@@ -113,7 +113,7 @@ resource "openstack_compute_instance_v2" "qa_server" {
      uuid = data.openstack_images_image_v2.server_image.id
   }
 
-  user_data = templatefile("./cloud-init-minecraft.tpl", {domain="example",email="me@example.com"})
+  user_data = templatefile("./cloud-init-docker.tpl", {domain="example",email="me@example.com"})
 }
 
 output "floating_ip" {
