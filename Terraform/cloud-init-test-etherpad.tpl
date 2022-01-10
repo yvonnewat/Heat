@@ -9,14 +9,14 @@ packages:
 runcmd:
   - exec &>/var/log/boot-config.log
 
-  - curl https://raw.githubusercontent.com/flashvoid/demo-provision/main/ddns/namecheap/ddns-update -o /tmp/ddns-script
+  - curl $ddns_script_url -o /tmp/ddns-script
   - chmod +x /tmp/ddns-script
 
   # This delay to ensure floating ip gets associated to the instance
   # sleep 1m
 
   - set +x
-  - /tmp/ddns-script yvonne ilikebubbletea.me $(ec2metadata --public-ipv4) ea2d5c1e46c14257aff7cf52c15515c3
+  - /tmp/ddns-script $host_name $domain_name $(ec2metadata --public-ipv4) $ddns_password
   - set -x
 
   # This delay to allow DNS propagation to take place
@@ -61,8 +61,8 @@ runcmd:
     etherpad/etherpad
     
   - docker run -d --name nginx-proxy-acme \
-    --env "VIRTUAL_HOST=yvonne.ilikebubbletea.me" \
-    --env "LETSENCRYPT_HOST=yvonne.ilikebubbletea.me"  \
+    --env "VIRTUAL_HOST=$host_name.$domain_name" \
+    --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
     --env "VIRTUAL_PORT=9001" --expose 9001 etherpad/etherpad
     
   - touch /deploy-complete
