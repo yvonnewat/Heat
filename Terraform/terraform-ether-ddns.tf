@@ -150,7 +150,13 @@ resource "openstack_compute_instance_v2" "qa_server" {
      uuid = data.openstack_images_image_v2.server_image.id
   }
 
-  user_data = templatefile("./cloud-init-test-etherpad.tpl", {domain="example",email="me@example.com"})
+  user_data = templatefile("./cloud-init-test-etherpad.tpl", {
+    domain_name = "${var.domain_name}",
+    host_name = "${var.host_name}",
+    ddns_delay = "${var.ddns_delay}",
+    ddns_password = "${var.ddns_password}",
+    ddns_script_url = "${var.ddns_script_url}"
+  })
 }
 
 output "floating_ip" {
