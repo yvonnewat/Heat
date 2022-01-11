@@ -47,7 +47,7 @@ docker run -d \
 --restart unless-stopped \
 etherpad/etherpad
     
-docker run -d --name nginx-proxy-acme \
+docker run -d --name web \
 --env "VIRTUAL_HOST=$host_name.$domain_name" \
 --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
 --env "VIRTUAL_PORT=9001" --expose 9001 etherpad/etherpad
