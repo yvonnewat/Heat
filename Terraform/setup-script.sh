@@ -3,9 +3,10 @@
 host_name=$1
 domain_name=$2
 ddns_password=$3
+ip_address=$4
 
 set +x
-./ddns-script.sh $host_name $domain_name $(ec2metadata --public-ipv4) $ddns_password
+./ddns-script.sh $host_name $domain_name $ip_address $ddns_password
 set -x
 
 # This delay to allow DNS propagation to take place
