@@ -7,7 +7,7 @@ set +x
 set -x
 
 # This delay to allow DNS propagation to take place
-sleep 3m
+sleep $ddns_delay
 
 # Create nginx proxy
 docker pull nginxproxy/nginx-proxy
