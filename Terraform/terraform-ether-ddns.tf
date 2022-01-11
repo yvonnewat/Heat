@@ -151,12 +151,11 @@ resource "openstack_compute_instance_v2" "qa_server" {
   }
 
   user_data = templatefile("./cloud-init-test-etherpad.tpl", {
-    domain_name = "${var.domain_name}",
-    host_name = "${var.host_name}",
-    ddns_delay = "${var.ddns_delay}",
-    ddns_password = "${var.ddns_password}",
-    ddns_script_url = "${var.ddns_script_url}"
-  })
+    domain_name = var.domain_name,
+    host_name = var.host_name,
+    ddns_delay = var.ddns_delay,
+    ddns_password = var.ddns_password,
+    ddns_script_url = var.ddns_script_url})
 }
 
 output "floating_ip" {
