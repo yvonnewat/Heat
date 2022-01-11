@@ -3,14 +3,13 @@
 host_name=$1
 domain_name=$2
 ddns_password=$3
-ddns_delay=$4
 
 set +x
-/tmp/ddns-script $host_name $domain_name $(ec2metadata --public-ipv4) $ddns_password
+./ddns-script.sh $host_name $domain_name $(ec2metadata --public-ipv4) $ddns_password
 set -x
 
 # This delay to allow DNS propagation to take place
-sleep $ddns_delay
+sleep 3m
 
 # Create nginx proxy
 docker pull nginxproxy/nginx-proxy
