@@ -1,14 +1,13 @@
 #cloud-config
 package_update: true
 package_upgrade: true
-package_reboot_if_required: true]
+package_reboot_if_required: true
 packages:
   - docker-ce
   - docker-ce-cli
   - containerd.io
+  - docker-compose
 runcmd:
-  - exec &>/var/log/boot-config.log
-
   - curl $ddns_script_url -o /tmp/ddns-script
   - chmod +x /tmp/ddns-script
 
