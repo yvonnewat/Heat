@@ -1,6 +1,9 @@
 #!/bin/bash
 
 host_name=$1
+domain_name=$2
+ddns_password=$3
+ddns_delay=$4
 
 set +x
 /tmp/ddns-script $host_name $domain_name $(ec2metadata --public-ipv4) $ddns_password
