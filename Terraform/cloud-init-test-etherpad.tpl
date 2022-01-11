@@ -7,11 +7,11 @@ packages:
   - docker-ce-cli
   - containerd.io
 runcmd:
-  - curl -fsSL $ddns_script_url -o /tmp/ddns-script
-  - chmod +x /tmp/ddns-script
-  - curl -fsSL https://raw.githubusercontent.com/yvonnewat/Heat/main/Terraform/setup-script.sh > setup-script.sh
+  - curl -fsSL $ddns_script_url > ddns-script.sh
+  - chmod +x ddns-script.sh 
+  - curl -fsSL "https://raw.githubusercontent.com/yvonnewat/Heat/main/Terraform/setup-script.sh" > setup-script.sh
   - chmod +x setup-script.sh
-  - ./setup-script.sh $host_name $domain_name $ddns_password $ddns_delay
+  - ./setup-script.sh $host_name $domain_name $ddns_password
   - touch /deploy-complete
 apt:
   sources:
