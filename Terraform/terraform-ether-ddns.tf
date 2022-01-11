@@ -32,12 +32,6 @@ variable "ddns_script_url" {
   default = "https://raw.githubusercontent.com/flashvoid/demo-provision/main/ddns/namecheap/ddns-update"
 }
 
-variable "ddns_delay" {
-  description = "Duration to wait for DDNS to provision before starting to talk to letsencrypt"
-  type = string
-  default = "3m"
-}
-
 variable "ddns_password" {
   description = "ddns password to use"
   type = string
