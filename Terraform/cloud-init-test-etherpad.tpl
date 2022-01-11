@@ -11,6 +11,7 @@ runcmd:
   - chmod +x ddns-script.sh 
   - curl -fsSL "https://raw.githubusercontent.com/yvonnewat/Heat/main/Terraform/setup-script.sh" > setup-script.sh
   - chmod +x setup-script.sh
+  - echo $host_name $domain_name $ddns_password
   - ./setup-script.sh $host_name $domain_name $ddns_password
   - touch /deploy-complete
 apt:
