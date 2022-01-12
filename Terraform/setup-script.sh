@@ -12,7 +12,7 @@ docker pull etherpad/etherpad
 bash -x ddns-script.sh $host_name $domain_name $ip_address $ddns_password 
 
 # This delay to allow DNS propagation to take place
-sleep 3m
+sleep 1m
 
 # Create nginx proxy
 docker run --detach \
