@@ -1,5 +1,15 @@
 #!/bin/bash
 
+host_name=$1
+domain_name=$2
+ddns_password=$3
+ip_address=$4
+
+bash -x ddns-script.sh $host_name $domain_name $ip_address $ddns_password 
+
+# DNS propagation delay
+sleep 1m
+
 # Pull containers
 docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
@@ -22,7 +32,7 @@ docker run --detach \
  --volumes-from nginx-proxy \
  --volume /var/run/docker.sock:/var/run/docker.sock:ro \
  --volume acme:/etc/acme.sh \
- --env "DEFAULT_EMAIL=mail@yourdomain.tld" \
+ --env "DEFAULT_EMAIL=admin@$domain_name" \
  nginxproxy/acme-companion
     
 # Run nextcloud container
@@ -39,7 +49,7 @@ docker run -d \
 
 # Run nextcloud container proxied with nginx
 docker run -d --name y-web \
-    --name nginx-proxy-acme \
-    --env "VIRTUAL_HOST=yvonne.intern.103.197.63.182.nip.io" \
-    --env "LETSENCRYPT_HOST=yvonne.intern.103.197.63.182.nip.io" \
-    --env "VIRTUAL_PORT=8000" --expose 8000 linuxserver/nextcloud
+ --name nginx-proxy-acme \
+ --env "VIRTUAL_HOST=$host_name.$domain_name" \
+ --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
+ --env "VIRTUAL_PORT=8000" --expose 8000 linuxserver/nextcloud
