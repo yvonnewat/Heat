@@ -30,7 +30,7 @@ docker run --detach \
 --volumes-from nginx-proxy \
 --volume /var/run/docker.sock:/var/run/docker.sock:ro \
 --volume acme:/etc/acme.sh \
---env "DEFAULT_EMAIL=admin@ilikebubbletea.me" \
+--env "DEFAULT_EMAIL=admin@$domain" \
 nginxproxy/acme-companion
     
 # Create etherpad container proxied with nginx
