@@ -9,9 +9,7 @@ docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
 docker pull etherpad/etherpad
 
-set +x
-./ddns-script.sh $host_name $domain_name $ip_address $ddns_password
-set -x
+bash -x ddns-script.sh $host_name $domain_name $ip_address $ddns_password
 
 # This delay to allow DNS propagation to take place
 sleep 3m
