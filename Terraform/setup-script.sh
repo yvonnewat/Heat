@@ -5,6 +5,10 @@ domain_name=$2
 ddns_password=$3
 ip_address=$4
 
+docker pull nginxproxy/nginx-proxy
+docker pull nginxproxy/acme-companion
+docker pull etherpad/etherpad
+
 set +x
 ./ddns-script.sh $host_name $domain_name $ip_address $ddns_password
 set -x
@@ -13,7 +17,6 @@ set -x
 sleep 3m
 
 # Create nginx proxy
-docker pull nginxproxy/nginx-proxy
 docker run --detach \
 --name nginx-proxy \
 --publish 80:80 \
@@ -24,7 +27,6 @@ docker run --detach \
 nginxproxy/nginx-proxy
 
 # Create nginx acme companion
-docker pull nginxproxy/acme-companion
 docker run --detach \
 --name nginx-proxy-acme \
 --volumes-from nginx-proxy \
@@ -34,7 +36,6 @@ docker run --detach \
 nginxproxy/acme-companion
     
 # Create etherpad container proxied with nginx
-docker pull etherpad/etherpad
 docker run -d \
 --name=etherpad \
 -e PUID=1000 \
