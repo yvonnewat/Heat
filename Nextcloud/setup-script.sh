@@ -48,7 +48,6 @@ docker run -d \
 
 # Run nextcloud container proxied with nginx
 docker run -d --name y-web \
- --name nginx-proxy-acme \
  --env "VIRTUAL_HOST=$host_name.$domain_name" \
  --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
  --env "VIRTUAL_PORT=8000" --expose 8000 linuxserver/nextcloud
