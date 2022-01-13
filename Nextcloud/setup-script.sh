@@ -41,7 +41,7 @@ docker run -d \
  -e PUID=1000 \
  -e PGID=1000 \
  -e TZ=NZ \
- -p 443:443
+ -p 8000:443
  --env "VIRTUAL_HOST=$host_name.$domain_name" \
  --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
  --env "VIRTUAL_PORT=8000" \
