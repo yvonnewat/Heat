@@ -19,6 +19,7 @@ docker pull linuxserver/nextcloud
 docker run --detach \
  --name nginx-proxy \
  --publish 80:80 \
+ --publish 443:443 \
  --volume certs:/etc/nginx/certs \
  --volume vhost:/etc/nginx/vhost.d \
  --volume html:/usr/share/nginx/html \
@@ -40,14 +41,12 @@ docker run -d \
  -e PUID=1000 \
  -e PGID=1000 \
  -e TZ=NZ \
+ --env "VIRTUAL_HOST=$host_name.$domain_name" \
+ --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
+ --env "VIRTUAL_PORT=8000" 
+ --expose 8000 \
  -p 443:443 \
  -v /path/to/appdata:/config \
  -v /path/to/data:/data \
  --restart unless-stopped \
  linuxserver/nextcloud
-
-# Run nextcloud container proxied with nginx
-docker run -d --name y-web \
- --env "VIRTUAL_HOST=$host_name.$domain_name" \
- --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
- --env "VIRTUAL_PORT=8000" --expose 8000 linuxserver/nextcloud
