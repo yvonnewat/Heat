@@ -44,9 +44,8 @@ docker run --detach \
  --env "VIRTUAL_HOST=$host_name.$domain_name" \
  --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
  --env "VIRTUAL_PORT=8000" \
- -p 8000:443
+ -p 8000:80 \
  -v /path/to/appdata:/config \
  -v /path/to/data:/data \
  --restart unless-stopped \
- --expose 8000 \
  linuxserver/nextcloud
