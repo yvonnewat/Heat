@@ -38,14 +38,11 @@ docker run --detach \
 # Run nextcloud container
 docker run --detach \
  --name=nextcloud \
- -e PUID=1000 \
- -e PGID=1000 \
  -e TZ=NZ \
+ -p 8080:80 \
  --env "VIRTUAL_HOST=$host_name.$domain_name" \
  --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
- --env "VIRTUAL_PORT=8000" \
- -p 8000:80 \
  -v /path/to/appdata:/config \
  -v /path/to/data:/data \
  --restart unless-stopped \
- linuxserver/nextcloud
+ nextcloud
