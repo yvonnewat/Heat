@@ -13,7 +13,7 @@ sleep 1m
 # Pull containers
 docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
-docker pull linuxserver/nextcloud
+docker pull nextcloud
 
 # Run nginx-proxy
 docker run --detach \
