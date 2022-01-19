@@ -4,6 +4,7 @@ host_name=$1
 domain_name=$2
 ddns_password=$3
 ip_address=$4
+file_upload_size=$5
 
 bash -x ddns-script.sh $host_name $domain_name $ip_address $ddns_password 
 
@@ -25,6 +26,7 @@ docker run --detach \
  --volume html:/usr/share/nginx/html \
  --volume /var/run/docker.sock:/tmp/docker.sock:ro \
  nginxproxy/nginx-proxy
+ echo client_max_bosy_size $file_upload_size > /var/lib/docker/volumes/vhost/_data/asdf
     
 # Run acme-companion
 docker run --detach \
