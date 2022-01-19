@@ -26,7 +26,7 @@ docker run --detach \
  --volume html:/usr/share/nginx/html \
  --volume /var/run/docker.sock:/tmp/docker.sock:ro \
  nginxproxy/nginx-proxy
- echo client_max_bosy_size $file_upload_size > /var/lib/docker/volumes/vhost/_data/asdf
+ echo client_max_body_size $file_upload_size > /var/lib/docker/volumes/vhost/_data/file_upload
     
 # Run acme-companion
 docker run --detach \
