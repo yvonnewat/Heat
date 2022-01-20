@@ -12,7 +12,7 @@ bash -x ddns-script.sh $host_name $domain_name $ip_address $ddns_password
 sleep 1m
 
 # Create custom nginx proxy configuration
-echo client_max_body_size $file_upload_size; > /home/ubuntu/proxy.conf
+echo "client_max_body_size $file_upload_size;" > /tmp/proxy.conf
 chmod 666 proxy.conf  # Change file permissions
 
 # Pull containers
@@ -28,7 +28,7 @@ docker run --detach \
  --volume certs:/etc/nginx/certs \
  --volume vhost:/etc/nginx/vhost.d \
  --volume html:/usr/share/nginx/html \
- --volume /home/ubuntu/proxy.conf:/etc/nginx/conf.d/proxy.conf \
+ --volume /tmp/proxy.conf:/etc/nginx/conf.d/proxy.conf \
  --volume /var/run/docker.sock:/tmp/docker.sock:ro \
  nginxproxy/nginx-proxy
     
