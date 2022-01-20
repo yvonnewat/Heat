@@ -42,10 +42,12 @@ docker run --detach \
  --env "DEFAULT_EMAIL=admin@$domain_name" \
  nginxproxy/acme-companion
  
+mkdir /sqlstore
+
 # Run MySQL container
 docker run \
  --name=nextcloud-database \
- -v /my/own/datadir:/var/lib/mysql \
+ -v /sqlstore:/var/lib/mysql \
  -e MYSQL_ROOT_PASSWORD=fhroeri4839gn \
  -d mysql:tag \
  mysql
