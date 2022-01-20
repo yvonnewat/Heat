@@ -49,7 +49,6 @@ docker run \
  --name=nextcloud-database \
  -v /sqlstore:/var/lib/mysql \
  -e MYSQL_ROOT_PASSWORD=fhroeri4839gn \
- -d mysql:tag \
  mysql
     
 # Run nextcloud container
