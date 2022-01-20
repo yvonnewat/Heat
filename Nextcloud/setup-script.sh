@@ -19,6 +19,7 @@ chmod 666 proxy.conf  # Change file permissions
 docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
 docker pull nextcloud
+docker pull mysql
 
 # Run nginx-proxy
 docker run --detach \
@@ -40,6 +41,14 @@ docker run --detach \
  --volume acme:/etc/acme.sh \
  --env "DEFAULT_EMAIL=admin@$domain_name" \
  nginxproxy/acme-companion
+ 
+# Run MySQL container
+docker run \
+ --name=nextcloud-database \
+ -v /my/own/datadir:/var/lib/mysql \
+ -e MYSQL_ROOT_PASSWORD=fhroeri4839gn \
+ -d mysql:tag \
+ mysql
     
 # Run nextcloud container
 docker run --detach \
