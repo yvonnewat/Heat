@@ -11,6 +11,10 @@ bash -x ddns-script.sh $host_name $domain_name $ip_address $ddns_password
 # DNS propagation delay
 sleep 1m
 
+# Create custom nginx proxy configuration
+echo client_max_body_size $file_upload_size; > /home/ubuntu/proxy.conf
+chmod 666 proxy.conf  # Change file permissions
+
 # Pull containers
 docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
@@ -24,9 +28,9 @@ docker run --detach \
  --volume certs:/etc/nginx/certs \
  --volume vhost:/etc/nginx/vhost.d \
  --volume html:/usr/share/nginx/html \
+ --volume /home/ubuntu/proxy.conf:/etc/nginx/conf.d/proxy.conf \
  --volume /var/run/docker.sock:/tmp/docker.sock:ro \
  nginxproxy/nginx-proxy
- echo client_max_body_size $file_upload_size > /var/lib/docker/volumes/vhost/_data/file_upload
     
 # Run acme-companion
 docker run --detach \
