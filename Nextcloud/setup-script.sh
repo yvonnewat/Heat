@@ -49,8 +49,8 @@ docker run --detach \
  -p 8080:80 \
  --env "VIRTUAL_HOST=$host_name.$domain_name" \
  --env "LETSENCRYPT_HOST=$host_name.$domain_name"  \
- -v /path/to/appdata:/config \
- -v /path/to/data:/data \
+ -v /tmp/appdata:/config \
+ -v /tmp/data:/data \
  --restart unless-stopped \
  nextcloud
 
