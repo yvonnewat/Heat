@@ -13,7 +13,7 @@ sleep 1m
 
 # Create custom nginx proxy configuration
 echo "client_max_body_size $file_upload_size;" > /tmp/proxy.conf
-chmod 666 proxy.conf  # Change file permissions
+chmod 666 /tmp/proxy.conf  # Change file permissions
 
 # Pull containers
 docker pull nginxproxy/nginx-proxy
