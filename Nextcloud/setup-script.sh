@@ -61,6 +61,7 @@ docker run \
  --name=nextcloud-database \
  -e POSTGRES_USER=nextcloudAdmin \
  -e POSTGRES_PASSWORD=fhroeri4839gn \
- -e POSTGRES_DB=nextcloud \
+ -e POSTGRES_DB=nextcloud_db \
+ -e POSTGRES_HOST=nextcloud_db_1 \
  -v /postgre-store:/var/lib/postgresql/data \
  -d postgres
