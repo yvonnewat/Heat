@@ -41,15 +41,6 @@ docker run --detach \
  --volume acme:/etc/acme.sh \
  --env "DEFAULT_EMAIL=admin@$domain_name" \
  nginxproxy/acme-companion
- 
-mkdir /sqlstore
-
-# Run MySQL container
-docker run \
- --name=nextcloud-database \
- -v /sqlstore:/var/lib/mysql \
- -e MYSQL_ROOT_PASSWORD=fhroeri4839gn \
- mysql
     
 # Run nextcloud container
 docker run --detach \
@@ -62,3 +53,12 @@ docker run --detach \
  -v /path/to/data:/data \
  --restart unless-stopped \
  nextcloud
+
+mkdir /postgre-store
+
+# Run PostgreSQL container
+docker run \
+ --name=nextcloud-database \
+ -v /postgre-store:/var/lib/postgres \
+ -e POSTGRES_PASSWORD=fhroeri4839gn \
+ -d postgres
