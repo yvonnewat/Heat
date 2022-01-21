@@ -19,7 +19,7 @@ chmod 666 /tmp/proxy.conf  # Change file permissions
 docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
 docker pull nextcloud
-docker pull mysql
+docker pull postgres
 
 # Run nginx-proxy
 docker run --detach \
