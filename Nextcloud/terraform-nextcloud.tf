@@ -169,7 +169,7 @@ resource "openstack_blockstorage_volume_v2" "boba_volume" {
   name = "boba_volume_data"
   volume_type = "b1.sr-r3-nvme-1000"
   #id = var.volume_uuid
-  count = var.volume_uuid != "" ? 1 : 0
+  count = var.volume_uuid != "" ? 0 : 1
 }
 
 resource "openstack_compute_instance_v2" "qa_server" {
@@ -191,7 +191,7 @@ resource "openstack_compute_instance_v2" "qa_server" {
   }
    block_device {
      delete_on_termination = false
-     uuid = openstack_blockstorage_volume_v2.boba_volume[count.index].id
+     uuid = var.volume_uuid != "" ? var.volume_uuid : openstack_blockstorage_volume_v2.boba_volume[0].id
      source_type = "volume"
      destination_type = "volume"
      boot_index = 1
