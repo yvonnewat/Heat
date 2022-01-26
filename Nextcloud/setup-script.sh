@@ -15,10 +15,6 @@ sleep 1m
 echo "client_max_body_size $file_upload_size;" > /tmp/proxy.conf
 chmod 666 /tmp/proxy.conf  # Change file permissions
 
-# Mount volume for Nextcloud database
-mkfs.ext4 /dev/vdb
-mount -o loop /dev/vdb /data
-
 # Pull containers
 docker pull nginxproxy/nginx-proxy
 docker pull nginxproxy/acme-companion
@@ -56,3 +52,7 @@ docker run --detach \
  --volume /data/db:/var/lib/sqlite \
  --restart unless-stopped \
  nextcloud
+
+# Mount volume for Nextcloud database
+mkfs.ext4 /dev/vdb
+mount -o loop /dev/vdb /data
