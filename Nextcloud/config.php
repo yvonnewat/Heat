@@ -506,7 +506,7 @@ $CONFIG = [
  * the automatic detection; for example ``www.example.com``, or specify the port
  * ``www.example.com:8080``.
  */
-'overwritehost' => 'nextcloud.ilikebubbletea.me',
+'overwritehost' => 'matcha.ilikebubbletea.me',
 
 /**
  * When generating URLs, Nextcloud attempts to detect whether the server is
@@ -544,7 +544,7 @@ $CONFIG = [
  *
  * Defaults to ``''`` (empty string)
  */
-'overwrite.cli.url' => 'https://www.nextcloud.ilikebubbletea.me',
+'overwrite.cli.url' => 'https://www.matcha.ilikebubbletea.me',
 
 /**
  * To have clean URLs without `/index.php` this parameter needs to be configured.
