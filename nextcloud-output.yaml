@@ -1,0 +1,198 @@
+./yaml-syntax-checker.py:6: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  data = yaml.load(sys.stdin)
+description: Template for using heat to create a Nextcloud instance
+heat_template_version: 2015-04-30
+outputs:
+  public_ip_address:
+    description: Public IP address
+    value:
+      get_attr:
+      - nextcloud-floating-ip
+      - floating_ip_address
+parameters:
+  ddns_password:
+    default: none
+    description: The password to use in ddns script.
+    hidden: true
+    type: string
+  ddns_script_url:
+    default: none
+    description: The URL of a script that will configure update ddns (called as ./ddns-script
+      <hostname> <domainname> <ip> <password>).
+    type: string
+  domainname:
+    default: none
+    description: The domain name to associate with IP address.
+    type: string
+  file_upload_size:
+    default: 1024m
+    description: The maximum upload size of files to the Nextcloud instance.
+    type: string
+  hostname:
+    default: none
+    description: The host name to associate with IP address.
+    type: string
+  keyname:
+    default: none
+    description: The name of the keypair used to connect to the server.
+    type: string
+  volume_uuid:
+    default: none
+    description: The id of the volume which will be used to store the data on the
+      instance.
+    type: string
+resources:
+  associate-floating-ip:
+    depends_on:
+    - nextcloud-interface
+    properties:
+      floatingip_id:
+        get_resource: nextcloud-floating-ip
+      port_id:
+        get_resource: nextcloud-port
+    type: OS::Neutron::FloatingIPAssociation
+  nextcloud-floating-ip:
+    properties:
+      floating_network: public-net
+    type: OS::Neutron::FloatingIP
+  nextcloud-interface:
+    properties:
+      router:
+        get_resource: nextcloud-router
+      subnet:
+        get_resource: nextcloud-subnet
+    type: OS::Neutron::RouterInterface
+  nextcloud-network:
+    type: OS::Neutron::Net
+  nextcloud-port:
+    properties:
+      network:
+        get_resource: nextcloud-network
+      security_groups:
+      - get_resource: nextcloud-security-group
+    type: OS::Neutron::Port
+  nextcloud-router:
+    properties:
+      external_gateway_info:
+        network: public-net
+    type: OS::Neutron::Router
+  nextcloud-security-group:
+    properties:
+      rules:
+      - direction: ingress
+        port_range_max: 80
+        port_range_min: 80
+        protocol: tcp
+      - direction: ingress
+        port_range_max: 443
+        port_range_min: 443
+        protocol: tcp
+      - direction: ingress
+        port_range_max: 22
+        port_range_min: 22
+        protocol: tcp
+    type: OS::Neutron::SecurityGroup
+  nextcloud-server:
+    depends_on:
+    - nextcloud-interface
+    - associate-floating-ip
+    - nextcloud-floating-ip
+    - nextcloud-port
+    - nextcloud-security-group
+    - nextcloud-network
+    - nextcloud-router
+    - nextcloud-subnet
+    properties:
+      flavor: 0ba691d3-3ff5-4403-843a-c7f8ff61ae4f
+      image: d8648a86-dc5d-45cb-8339-d4537dce4078
+      key_name:
+        get_param: keyname
+      networks:
+      - port:
+          get_resource: nextcloud-port
+      user_data:
+        str_replace:
+          params:
+            $ddns_password:
+              get_param: ddns_password
+            $ddns_script_url:
+              get_param: ddns_script_url
+            $domainname:
+              get_param: domainname
+            $file_upload_size:
+              get_param: file_upload_size
+            $hostname:
+              get_param: hostname
+            $volume_uuid:
+              get_param: volume_uuid
+          template: "#cloud-config\npackage_update: true\npackage_upgrade: true\n\
+            packages:\n  - docker-ce\n  - docker-ce-cli\n  - containerd.io \nwrite_files:\n\
+            \ - path: /etc/nginx-proxy.conf\n     permissions: '0644'\n     content:\
+            \ |\n       client_max_body_size ${ file_upload_size };\n       proxy_read_timeout\
+            \ 600s;\n - path: /etc/systemd/system/format-volume@.service\n    permissions:\
+            \ '0644'\n    content: |\n      [Unit]\n      Description=\"A service\
+            \ that creates a file system on the volume, if it does not have an existing\
+            \ file system\"\n      After=local-fs-pre.target\n      Before=local-fs.target\n\
+            \n      [Service]\n      ExecStart=/bin/bash /setup/format-volume.sh /dev/%i\n\
+            \      RemainAfterExit=yes\n      Type=oneshot\n\n      [Install]\n  \
+            \    WantedBy=multi-user.target\n  - path: /setup/format-volume.sh\n \
+            \   permissions: '0755'\n    content: |\n      volume_used=$1\n      mkdir\
+            \ /data\n      if [[ \"$(blkid -s TYPE -o value $volume_used)\" == \"\"\
+            \ ]]; then\n      mkfs.ext4 $volume_used\n      fi \n  - path: /etc/systemd/system/data.mount\n\
+            \    permissions: '0644'\n    content: |\n      [Unit]\n      Description=\"\
+            A service that mounts a volume on the virtual machine\"\n      After=format-volume@vdb.service\n\
+            \      Before=local-fs.target\n\n      [Mount]\n      Where=/data\n  \
+            \    What=/dev/vdb\n      Type=ext4\n\n      [Install]\n      WantedBy=multi-user.target\
+            \   \n  - path: /etc/systemd/system/nginx-start.service\n    permissions:\
+            \ '0644'   \n    content: |\n      [Unit]\n      Description=\"A service\
+            \ that starts the NGINX container\"\n      After=docker.service\n\n  \
+            \    [Service]\n      ExecStartPre=-/usr/bin/docker rm nginx-proxy\n \
+            \     ExecStart=/usr/bin/docker run \\\n      --name nginx-proxy \\\n\
+            \      --publish 80:80 \\\n      --publish 443:443 \\\n      --volume\
+            \ certs:/etc/nginx/certs \\\n      --volume vhost:/etc/nginx/vhost.d \\\
+            \n      --volume html:/usr/share/nginx/html \\\n      --volume /etc/nginx-proxy.conf:/etc/nginx/conf.d/proxy.conf\
+            \ \\\n      --volume /var/run/docker.sock:/tmp/docker.sock:ro \\\n   \
+            \   nginxproxy/nginx-proxy\n      ExecStartPost=/bin/sleep 5\n      ExecStop=/usr/bin/docker\
+            \ stop nginx-proxy\n\n      [Install]\n      WantedBy=multi-user.target\
+            \  \n  - path: /etc/systemd/system/acme-companion-start@.service\n   \
+            \ permissions: '0644'\n    content: |\n      [Unit]\n      Description=\"\
+            A service that starts the NGINX acme companion container\"\n      After=nginx-start.service\n\
+            \n      [Service]\n      ExecStartPre=-/usr/bin/docker rm nginx-proxy-acme\n\
+            \      ExecStart=/usr/bin/docker run \\\n      --name nginx-proxy-acme\
+            \ \\\n      --volumes-from nginx-proxy \\\n      --volume /var/run/docker.sock:/var/run/docker.sock:ro\
+            \ \\\n      --volume acme:/etc/acme.sh \\\n      --env \"DEFAULT_EMAIL=admin@%i\"\
+            \ \\\n      nginxproxy/acme-companion\n      ExecStop=/usr/bin/docker\
+            \ stop nginx-proxy-acme\n      \n      [Install]\n      WantedBy=multi-user.target\
+            \  \n  - path: /etc/systemd/system/nextcloud-start@.service\n    permissions:\
+            \ '0644'\n    content: |\n      [Unit]\n      Description=\"A service\
+            \ that starts the Nextcloud container\"\n      After=acme-companion.service\n\
+            \n      [Service]\n      ExecStartPre=-/usr/bin/docker rm nextcloud\n\
+            \      ExecStart=/usr/bin/docker run \\\n      --name=nextcloud \\\n \
+            \     -e TZ=NZ \\\n      -p 8080:80 \\\n      --env \"VIRTUAL_HOST=%i\"\
+            \ \\\n      --env \"LETSENCRYPT_HOST=%i\"  \\\n      --volume /data/www/html:/var/www/html\
+            \ \\\n      --restart unless-stopped \\\n      nextcloud\n      ExecStop=/usr/bin/docker\
+            \ stop nextcloud\n\n      [Install]\n      WantedBy=multi-user.target\n\
+            \nruncmd:\n - [ wget, \"${ ddns_script_url }\" ]\n - [ mv, ddns-update.sh,\
+            \ /setup ]\n - [ chmod, +x, /setup/ddns-update.sh ]\n - [ ip_address=$(ec2metadata\
+            \ --public-ipv4) ]\n - [ .//setup/ddns-update.sh, ${ host_name }, ${ domain_name\
+            \ }, ${ ip_address }, ${ ddns_password } ]\n - [ .//setup/configure-nginx.sh,\
+            \ ${ file_upload_size } ]\n - [ cd, /root ]\n - [ cd, /etc/systemd/system\
+            \ ]\n - [ systemctl, daemon-reload ]\n - [ systemctl, enable, format-volume@vdb.service\
+            \ ]\n - [ systemctl, enable, data.mount ]\n - [ systemctl, enable, nginx-start.service\
+            \ ]\n - [ systemctl, enable, acme-companion-start@${ domain_name }.service\
+            \ ] \n - [ systemctl, enable, nextcloud-start@${ host_name }.${ domain_name\
+            \ }.service ]\n - [ systemctl, start, format-volume@vdb.service ]\n -\
+            \ [ systemctl, start, data.mount ]\n - [ systemctl, start, --no-block,\
+            \ nginx-start.service ] \n - [ systemctl, start, --no-block, acme-companion-start@${\
+            \ domain_name }.service ]  \n - [ systemctl, start, --no-block, nextcloud-start@${\
+            \ host_name }.${ domain_name }.service ]\n - [ touch, /deploy-complete\
+            \ ]\napt:\n  sources:\n    docker:\n      source: deb https://download.docker.com/linux/ubuntu\
+            \ $RELEASE stable\n      keyid: 9dc858229fc7dd38854ae2d88d81803c0ebfcd88\n"
+      user_data_format: RAW
+    type: OS::Nova::Server
+  nextcloud-subnet:
+    properties:
+      cidr: 10.0.0.7/24
+      network:
+        get_resource: nextcloud-network
+    type: OS::Neutron::Subnet
