@@ -86,8 +86,11 @@ resources:
       image: d8648a86-dc5d-45cb-8339-d4537dce4078 #ubuntu-20.04-x86_64
       flavor: 0ba691d3-3ff5-4403-843a-c7f8ff61ae4f #c1.c4r4
       networks: 
-        - port: { get_resource: nextcloud-port } 
-      user_data: |
+      - port: { get_resource: nextcloud-port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
             #cloud-config
             package_update: true
             package_upgrade: true
@@ -96,7 +99,12 @@ resources:
               - docker-ce-cli
               - containerd.io 
             write_files:
-              - path: /etc/systemd/system/format-volume@.service
+             - path: /etc/nginx-proxy.conf
+                 permissions: '0644'
+                 content: |
+                   client_max_body_size ${ file_upload_size };
+                   proxy_read_timeout 600s;
+             - path: /etc/systemd/system/format-volume@.service
                 permissions: '0644'
                 content: |
                   [Unit]
@@ -142,6 +150,7 @@ resources:
                   After=docker.service
 
                   [Service]
+                  ExecStartPre=-/usr/bin/docker rm nginx-proxy
                   ExecStart=/usr/bin/docker run \
                   --name nginx-proxy \
                   --publish 80:80 \
@@ -149,9 +158,11 @@ resources:
                   --volume certs:/etc/nginx/certs \
                   --volume vhost:/etc/nginx/vhost.d \
                   --volume html:/usr/share/nginx/html \
-                  --volume /tmp/proxy.conf:/etc/nginx/conf.d/proxy.conf \
+                  --volume /etc/nginx-proxy.conf:/etc/nginx/conf.d/proxy.conf \
                   --volume /var/run/docker.sock:/tmp/docker.sock:ro \
                   nginxproxy/nginx-proxy
+                  ExecStartPost=/bin/sleep 5
+                  ExecStop=/usr/bin/docker stop nginx-proxy
 
                   [Install]
                   WantedBy=multi-user.target  
@@ -163,6 +174,7 @@ resources:
                   After=nginx-start.service
 
                   [Service]
+                  ExecStartPre=-/usr/bin/docker rm nginx-proxy-acme
                   ExecStart=/usr/bin/docker run \
                   --name nginx-proxy-acme \
                   --volumes-from nginx-proxy \
@@ -170,7 +182,8 @@ resources:
                   --volume acme:/etc/acme.sh \
                   --env "DEFAULT_EMAIL=admin@%i" \
                   nginxproxy/acme-companion
-
+                  ExecStop=/usr/bin/docker stop nginx-proxy-acme
+                  
                   [Install]
                   WantedBy=multi-user.target  
               - path: /etc/systemd/system/nextcloud-start@.service
@@ -181,6 +194,7 @@ resources:
                   After=acme-companion.service
 
                   [Service]
+                  ExecStartPre=-/usr/bin/docker rm nextcloud
                   ExecStart=/usr/bin/docker run \
                   --name=nextcloud \
                   -e TZ=NZ \
@@ -190,19 +204,11 @@ resources:
                   --volume /data/www/html:/var/www/html \
                   --restart unless-stopped \
                   nextcloud
+                  ExecStop=/usr/bin/docker stop nextcloud
 
                   [Install]
-                  WantedBy=multi-user.target   
-               - path: /setup/configure-nginx.sh
-                 permissions: '0755'
-                 content: |
-                   #!/bin/bash
-
-                   file_upload_size=$1
-
-                   # Create custom nginx proxy configuration
-                   echo "client_max_body_size $file_upload_size;" > /tmp/proxy.conf
-                   chmod 666 /tmp/proxy.conf  # Change file permissions       
+                  WantedBy=multi-user.target
+       
             runcmd:
              - [ wget, "${ ddns_script_url }" ]
              - [ mv, ddns-update.sh, /setup ]
@@ -224,19 +230,18 @@ resources:
              - [ systemctl, start, --no-block, acme-companion-start@${ domain_name }.service ]  
              - [ systemctl, start, --no-block, nextcloud-start@${ host_name }.${ domain_name }.service ]
              - [ touch, /deploy-complete ]
-          apt:
-            sources:
-              docker:
-                source: deb https://download.docker.com/linux/ubuntu $RELEASE stable
-                keyid: 9dc858229fc7dd38854ae2d88d81803c0ebfcd88
-      user_data_format: RAW          
-      params:
-        $hostname: { get_param: hostname }
-        $domainname: { get_param: domainname }
-        $ddns_script_url: { get_param: ddns_script_url }
-        $ddns_password: { get_param: ddns_password }
-        $file_upload_size: { get_param: file_upload_size }
-        $volume_uuid: { get_param: volume_uuid }
+            apt:
+              sources:
+                docker:
+                  source: deb https://download.docker.com/linux/ubuntu $RELEASE stable
+                  keyid: 9dc858229fc7dd38854ae2d88d81803c0ebfcd88
+          params:
+            $hostname: { get_param: hostname }
+            $domainname: { get_param: domainname }
+            $ddns_script_url: { get_param: ddns_script_url }
+            $ddns_password: { get_param: ddns_password }
+            $file_upload_size: { get_param: file_upload_size }
+            $volume_uuid: { get_param: volume_uuid }
 outputs:
   public_ip_address:
     description: Public IP address
